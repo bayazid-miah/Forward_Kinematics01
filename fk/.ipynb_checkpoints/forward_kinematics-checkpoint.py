@@ -9,7 +9,7 @@ def forward_kinematics(q, key, kintree):
     q_map = {name: torch.tensor(val, dtype=torch.float32) for name, val in zip(key, q)}
     joint_positions, marker_positions = {}, {}
 
-    # --- root pelvis transform (translation + 3 rotations) ---
+    # root pelvis transform
     T_root = torch.eye(4, dtype=torch.float32)
     pelvis = kintree["pelvis"]
 
@@ -29,7 +29,7 @@ def forward_kinematics(q, key, kintree):
             T_rot[:3, :3] = R
             T_root = T_root @ T_rot
 
-    # --- recursive FK ---
+    # recursive FK
     def recurse(seg_name, seg_data, T_parent):
         offset = torch.tensor(seg_data.get("offset", [0, 0, 0]), dtype=torch.float32)
         T_local = torch.eye(4, dtype=torch.float32)

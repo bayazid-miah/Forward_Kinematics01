@@ -3,10 +3,7 @@ import warnings
 import numpy as np
 
 def load_marker_data(file_path="data/Trial1_marker.trc"):
-    """
-    Final version: robust .trc loader that auto-detects data start
-    and properly renames marker coordinate columns.
-    """
+    
     import pandas as pd, re, warnings
 
     with warnings.catch_warnings():
@@ -38,7 +35,7 @@ def load_marker_data(file_path="data/Trial1_marker.trc"):
     if "Time" in cols[1]:
         cols[1] = "Time"
 
-    # fill unnamed columns properly (X/Y/Z cycling)
+    # fill unnamed columns properly
     new_cols = []
     coord_labels = ["_X", "_Y", "_Z"]
     coord_idx = 0
