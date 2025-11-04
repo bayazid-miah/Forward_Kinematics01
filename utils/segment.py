@@ -13,9 +13,22 @@ def segment_gait_cycles(grf_y_column, data, threshold=60, fs=100):
     min_interval = int(0.5 * fs)
     heel_strikes = [raw_strikes[0]]
     for hs in raw_strikes[1:]:
-        if hs - heel_strikes[-1] > min_interval:
+        if force[hs-20] < 200:
             heel_strikes.append(hs)
     heel_strikes = np.array(heel_strikes)
+
+    above_ = force > threshold
+    ind_ = np.where(above_)[0]
+    hs_ = [ind_[i] if ind_[i] > ind_[i-1] + 1 else 0 for i in range(len(ind_))]
+    
+    import matplotlib.pyplot as plt
+    plt.plot(force[700:1300])
+    plt.plot(heel_strikes[6:15]-700, np.zeros(len(heel_strikes[6:15])), 'ro')
+    plt.plot(hs_, np.zeros(len(hs_)), 'bx')
+    plt.xlim(150,220)
+    plt.ylim(0,100)
+    plt.grid()
+    plt.show()
 
     if len(heel_strikes) < 2:
         print("No valid heel strikes found.")
@@ -32,7 +45,7 @@ def segment_gait_cycles(grf_y_column, data, threshold=60, fs=100):
             continue
 
         segment = data.iloc[start_idx:end_idx].copy()
-        if segment["ground_force_vy"].max() < 300:
+        if force[start_idx:end_idx].max() < 300:
             continue
 
         segment["time"] -= segment["time"].iloc[0]
@@ -41,10 +54,7 @@ def segment_gait_cycles(grf_y_column, data, threshold=60, fs=100):
     
 # Ensemble average of gait cycles
 def ensemble_average(gait_cycles, n_points=100):
-    """
-    Compute ensemble average and standard deviation of any variable
-    (e.g. ground reaction force or joint angle) across all gait cycles.
-    """
+
     if not gait_cycles:
         raise ValueError("No gait cycles provided.")
 
